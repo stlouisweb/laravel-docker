@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    volumes:
+      - .:/var/www
+    ports:
+      - 9000:9000
+    depends_on:
+      - mariadb
+  proxy:
+    build:
+      context: .
+      dockerfile: docker/proxy.Dockerfile
+    ports:
+      - 8080:80
+    depends_on:
+      - app
+  mariadb:
+    image: mariadb:10.3
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 13306:3306
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootsecret
+
+volumes:
+  dbdata:
